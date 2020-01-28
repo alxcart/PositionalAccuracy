@@ -1,0 +1,47 @@
+# This file contains metadata for your plugin.
+
+# This file should be included when you package your plugin.# Mandatory items:
+
+[general]
+name=Positional Accuracy
+qgisMinimumVersion=3.0
+description=This plugin calculates the mean square error (RMSE), in meters, between the coordinate values present in the spatial data set and its counterpart considered as true. This planimetric error is measured manually and must be represented in a linear feature.
+version=0.1
+author=Alex Santos
+email=alxcart@gmail.com
+
+about=This plugin calculates the mean square error (rmse), in meters, between the coordinate values present in the spatial data set and its counterpart considered as true. This planimetric error is measured manually and must be represented in a linear feature.
+
+tracker=https://github.com/alxcart/PositionalAccuracy/issues
+repository=https://github.com/alxcart/PositionalAccuracy
+# End of mandatory metadata
+
+# Recommended items:
+
+hasProcessingProvider=no
+# Uncomment the following line and add your changelog:
+# changelog=
+
+# Tags are comma separated with spaces allowed
+tags=positional accuracy
+
+homepage=https://github.com/alxcart/PositionalAccuracy/wiki
+category=Vector
+icon=icon.png
+# experimental flag
+experimental=False
+
+# deprecated flag (applies to the whole plugin, not just a single version)
+deprecated=False
+
+# Since QGIS 3.8, a comma separated list of plugins to be installed
+# (or upgraded) can be specified.
+# Check the documentation for more information.
+# plugin_dependencies=
+
+Category of the plugin: Raster, Vector, Database or Web
+# category=
+
+# If the plugin can run on QGIS Server.
+server=False
+

@@ -23,13 +23,18 @@
 """
 from qgis.PyQt.QtCore import QSettings, QTranslator, QCoreApplication
 from qgis.PyQt.QtGui import QIcon
-from qgis.PyQt.QtWidgets import QAction
+from qgis.PyQt.QtWidgets import QAction, QMessageBox
+
+from qgis.core import *
+from qgis.utils import *
+from qgis.PyQt.QtCore import *
 
 # Initialize Qt resources from file resources.py
 from .resources import *
 # Import the code for the dialog
 from .data_quality_dialog import PositionalAccuracyDialog
 import os.path
+import math 
 
 
 class PositionalAccuracy:
@@ -65,7 +70,15 @@ class PositionalAccuracy:
 
         # Check if plugin was started the first time in current QGIS session
         # Must be set in initGui() to survive plugin reloads
-        self.first_start = None
+		
+        #self.first_start = None
+		
+        #Connecting the buttons and actions / Conectando os botoes e acoes
+#        self.dlg.lineEdit.clear()
+#        self.dlg.label_units.clear()
+                
+ #       self.initFolder();
+ #       self.dlg.pushButton.clicked.connect(self.select_output_file);
 
     # noinspection PyMethodMayBeStatic
     def tr(self, message):
@@ -179,17 +192,41 @@ class PositionalAccuracy:
                 action)
             self.iface.removeToolBarIcon(action)
 
+    def return_units(self):
+    #Returns the unit of measure of the layer / Retorna a unidade de medida da camada
+    #Input data selection
+        index = self.dlg.comboBox.currentIndex()
+        selection = self.dlg.comboBox.itemData(index)
+        # Executa apenas se houver uma seleção no comboBox
+        if selection is not None:
+            units = QgsUnitTypes.toString(selection.dataProvider().crs().mapUnits())
+            units_id = (selection.dataProvider().crs().mapUnits())
+            self.dlg.label_units.setText(units)
+            #size = self.dlg.lineEditSize.text()
+            # Function size of grid
+            #grid = size_of_grid(size, units_id)
+            #self.dlg.label_size.setText(str(grid))
+            return units, units_id #, grid
 
     def run(self):
         """Run method that performs all the real work"""
-
         # Create the dialog with elements (after translation) and keep reference
         # Only create GUI ONCE in callback, so that it will only load when the plugin is started
         if self.first_start == True:
             self.first_start = False
             self.dlg = PositionalAccuracyDialog()
-
-        # show the dialog
+            self.dlg.comboBox.currentIndexChanged.connect(self.return_units)
+			
+        # Preenchendo o comboBox (principal)
+        self.dlg.comboBox.clear()
+		#self.dlg.lineEditSize.setText(str(10.0))
+		
+        layers = QgsProject.instance().mapLayers().values()
+        for layer in layers:
+            if layer.type() == QgsMapLayer.VectorLayer :
+        	    self.dlg.comboBox.addItem( layer.name(), layer )
+		
+		# show the dialog
         self.dlg.show()
         # Run the dialog event loop
         result = self.dlg.exec_()
@@ -197,4 +234,32 @@ class PositionalAccuracy:
         if result:
             # Do something useful here - delete the line containing pass and
             # substitute with your code.
-            pass
+            #pass
+			#Calculate lenghts
+			#ly = iface.activeLayer()
+			#Input data selection 
+            index = self.dlg.comboBox.currentIndex()
+            selection = self.dlg.comboBox.itemData(index)
+            ly = selection 
+			
+            features = ly.getFeatures()
+            d = QgsDistanceArea()
+            d.setEllipsoid('WGS84')
+			
+            total = 0
+            soma2 = 0
+            n = 0
+            emq = 0
+			
+            for f in features:
+                geom = f.geometry()
+                soma2 = soma2 + d.measureLength(geom)**2
+                n = n + 1
+            	
+            emq = (soma2/n)**(1/2)
+            
+            self.dlg.label_size.setText(str(emq))
+			
+            QMessageBox.about(None, "Systematic random sampling", str(emq) )
+			
+            #pass
